@@ -23,8 +23,8 @@
       </div>
     </div>
     
-    <!-- Filters -->
-    <div class="flex gap-3 items-center">
+    <!-- Filters and View Toggle -->
+    <div class="flex gap-3 items-center flex-wrap">
       <!-- Type Filter Buttons -->
       <div class="flex gap-2">
         @for (type of [ObjectTypes.All, ObjectTypes.Desk, ObjectTypes.ParkingSpace]; track type) {
@@ -39,6 +39,38 @@
             {{ type }}
           </button>
         }
+      </div>
+      
+      <!-- View Mode Toggle -->
+      <div class="flex gap-2 border-l border-[#d3d3d3] pl-3">
+        <button
+          (click)="service.setViewMode('grid')"
+          [class.bg-[#7dd13d]]="service.viewMode() === 'grid'"
+          [class.text-[#ffffff]]="service.viewMode() === 'grid'"
+          [class.bg-[#eaeaea]]="service.viewMode() !== 'grid'"
+          [class.text-[#606a7a]]="service.viewMode() !== 'grid'"
+          class="px-4 py-2 rounded-lg font-semibold text-sm transition-colors hover:opacity-80 flex items-center gap-2"
+          title="Grid View"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+          </svg>
+          Grid
+        </button>
+        <button
+          (click)="service.setViewMode('floorplan')"
+          [class.bg-[#7dd13d]]="service.viewMode() === 'floorplan'"
+          [class.text-[#ffffff]]="service.viewMode() === 'floorplan'"
+          [class.bg-[#eaeaea]]="service.viewMode() !== 'floorplan'"
+          [class.text-[#606a7a]]="service.viewMode() !== 'floorplan'"
+          class="px-4 py-2 rounded-lg font-semibold text-sm transition-colors hover:opacity-80 flex items-center gap-2"
+          title="Floor Plan View"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          Floor Plan
+        </button>
       </div>
       
       <!-- Available Only Toggle -->
@@ -87,8 +119,8 @@
     </div>
   }
   
-  <!-- Objects Grid -->
-  @else {
+  <!-- Grid View -->
+  @else if (service.viewMode() === 'grid') {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       @for (obj of service.filteredObjects(); track obj.id) {
         <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
@@ -149,6 +181,63 @@
           }
         </div>
       }
+    </div>
+  }
+  
+  <!-- Floor Plan View -->
+  @else if (service.viewMode() === 'floorplan') {
+    <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-6 shadow-sm">
+      <div class="mb-4">
+        <h3 class="text-lg font-bold text-[#121212] mb-2">Floor Plan</h3>
+        <div class="flex items-center gap-4 text-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-[#7dd13d] rounded"></div>
+            <span class="text-[#606a7a]">Available</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-[#606a7a] rounded"></div>
+            <span class="text-[#606a7a]">Unavailable</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-[#e4f9d2] border-2 border-[#7dd13d] rounded"></div>
+            <span class="text-[#606a7a]">Desk</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-[#eaeaea] border-2 border-[#d3d3d3] rounded"></div>
+            <span class="text-[#606a7a]">Parking</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Floor Plan Canvas -->
+      <div class="relative bg-[#f5f5f5] border-2 border-[#d3d3d3] rounded-lg overflow-auto" style="height: 600px;">
+        @for (obj of service.filteredObjects(); track obj.id) {
+          @if (obj.positionX !== undefined && obj.positionY !== undefined) {
+            <button
+              [style.left.px]="obj.positionX"
+              [style.top.px]="obj.positionY"
+              [class.bg-[#7dd13d]]="obj.isAvailable"
+              [class.bg-[#606a7a]]="!obj.isAvailable"
+              [class.border-[#7dd13d]]="obj.type === 'Desk'"
+              [class.border-[#d3d3d3]]="obj.type === 'ParkingSpace'"
+              [title]="obj.name + ' - ' + (obj.isAvailable ? 'Available' : 'Unavailable')"
+              class="absolute w-20 h-20 border-2 rounded-lg flex flex-col items-center justify-center text-xs font-semibold text-[#ffffff] hover:scale-110 transition-transform cursor-pointer shadow-md hover:shadow-lg"
+            >
+              <div class="truncate px-1 w-full text-center">{{ obj.name }}</div>
+              @if (obj.type === 'Desk') {
+                <svg class="w-6 h-6 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                </svg>
+              }
+              @if (obj.type === 'ParkingSpace') {
+                <svg class="w-6 h-6 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+              }
+            </button>
+          }
+        }
+      </div>
     </div>
   }
 </div>

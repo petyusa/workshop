@@ -8,7 +8,9 @@ public record ReservableObjectResponse(
     bool HasTimeRestrictions,
     TimeOnly? AvailableFrom,
     TimeOnly? AvailableUntil,
-    string? DaysOfWeek
+    string? DaysOfWeek,
+    int? PositionX,
+    int? PositionY
 );
 
 public record ReservableObjectListResponse(

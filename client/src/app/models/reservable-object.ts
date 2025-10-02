@@ -7,6 +7,8 @@ export interface ReservableObject {
   availableFrom?: string;
   availableUntil?: string;
   daysOfWeek?: string;
+  positionX?: number;
+  positionY?: number;
 }
 
 export interface ReservableObjectListResponse {

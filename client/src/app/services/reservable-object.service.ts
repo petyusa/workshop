@@ -17,6 +17,7 @@ export class ReservableObjectService {
   readonly error = signal<string | null>(null);
   readonly filterType = signal<ObjectType>(ObjectTypes.All);
   readonly showAvailableOnly = signal(false);
+  readonly viewMode = signal<'grid' | 'floorplan'>('grid');
   
   // Computed filtered objects
   readonly filteredObjects = computed(() => {
@@ -84,5 +85,9 @@ export class ReservableObjectService {
   
   toggleAvailableOnly(): void {
     this.showAvailableOnly.update(current => !current);
+  }
+  
+  setViewMode(mode: 'grid' | 'floorplan'): void {
+    this.viewMode.set(mode);
   }
 }

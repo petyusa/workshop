@@ -11,6 +11,8 @@ public class ReservableObject
     public TimeOnly? AvailableFrom { get; set; }
     public TimeOnly? AvailableUntil { get; set; }
     public string? DaysOfWeek { get; set; }
+    public int? PositionX { get; set; }
+    public int? PositionY { get; set; }
     
     // Navigation property
     public Location Location { get; set; } = null!;
