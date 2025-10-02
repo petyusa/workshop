@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using Workshop.Api.Data;
 using Workshop.Api.Extensions;
 using Workshop.Api.Middleware;
 
@@ -7,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add DbContext
+builder.Services.AddDbContext<WorkshopDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add CORS policy for Angular client
 builder.Services.AddCors(options =>
@@ -28,7 +34,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Workshop API v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sonrisa Booking API v1");
         c.RoutePrefix = "swagger";
     });
 }
@@ -59,5 +65,8 @@ app.MapGet("/api/auth/me", (HttpContext context) =>
 .WithName("GetCurrentUser")
 .WithOpenApi()
 .WithDescription("Returns the current authenticated user information");
+
+// Map location endpoints
+app.MapLocationEndpoints();
 
 app.Run();
