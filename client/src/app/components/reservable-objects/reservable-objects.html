@@ -1,0 +1,154 @@
+<div class="space-y-6">
+  <!-- Header with Stats -->
+  <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-6 shadow-sm">
+    <h2 class="text-2xl font-bold text-[#121212] mb-4">Available Objects</h2>
+    
+    <!-- Stats Row -->
+    <div class="grid grid-cols-4 gap-4 mb-4">
+      <div class="text-center p-3 bg-[#eaeaea] rounded-lg">
+        <div class="text-2xl font-bold text-[#121212]">{{ service.stats().total }}</div>
+        <div class="text-xs text-[#606a7a]">Total</div>
+      </div>
+      <div class="text-center p-3 bg-[#e4f9d2] rounded-lg">
+        <div class="text-2xl font-bold text-[#3f7c2e]">{{ service.stats().available }}</div>
+        <div class="text-xs text-[#606a7a]">Available</div>
+      </div>
+      <div class="text-center p-3 bg-[#eaeaea] rounded-lg">
+        <div class="text-2xl font-bold text-[#121212]">{{ service.stats().desks }}</div>
+        <div class="text-xs text-[#606a7a]">Desks</div>
+      </div>
+      <div class="text-center p-3 bg-[#eaeaea] rounded-lg">
+        <div class="text-2xl font-bold text-[#121212]">{{ service.stats().parking }}</div>
+        <div class="text-xs text-[#606a7a]">Parking</div>
+      </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="flex gap-3 items-center">
+      <!-- Type Filter Buttons -->
+      <div class="flex gap-2">
+        @for (type of [ObjectTypes.All, ObjectTypes.Desk, ObjectTypes.ParkingSpace]; track type) {
+          <button
+            (click)="service.setFilterType(type)"
+            [class.bg-[#7dd13d]]="service.filterType() === type"
+            [class.text-[#ffffff]]="service.filterType() === type"
+            [class.bg-[#eaeaea]]="service.filterType() !== type"
+            [class.text-[#606a7a]]="service.filterType() !== type"
+            class="px-4 py-2 rounded-lg font-semibold text-sm transition-colors hover:opacity-80"
+          >
+            {{ type }}
+          </button>
+        }
+      </div>
+      
+      <!-- Available Only Toggle -->
+      <label class="flex items-center gap-2 cursor-pointer ml-auto">
+        <input
+          type="checkbox"
+          [checked]="service.showAvailableOnly()"
+          (change)="service.toggleAvailableOnly()"
+          class="w-4 h-4 text-[#7dd13d] rounded focus:ring-[#7dd13d]"
+        />
+        <span class="text-sm font-semibold text-[#606a7a]">Available Only</span>
+      </label>
+    </div>
+  </div>
+  
+  <!-- Loading State -->
+  @if (service.loading()) {
+    <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-12 text-center">
+      <div class="animate-spin w-12 h-12 border-4 border-[#7dd13d] border-t-transparent rounded-full mx-auto mb-4"></div>
+      <p class="text-[#606a7a]">Loading objects...</p>
+    </div>
+  }
+  
+  <!-- Error State -->
+  @else if (service.error()) {
+    <div class="bg-[#ffffff] border border-red-300 rounded-lg p-6 text-center">
+      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <p class="text-red-600 font-semibold">{{ service.error() }}</p>
+    </div>
+  }
+  
+  <!-- Empty State -->
+  @else if (service.filteredObjects().length === 0) {
+    <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-12 text-center">
+      <div class="w-16 h-16 bg-[#eaeaea] rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-[#606a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-[#121212] mb-2">No Objects Found</h3>
+      <p class="text-[#606a7a]">No reservable objects match your filters</p>
+    </div>
+  }
+  
+  <!-- Objects Grid -->
+  @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (obj of service.filteredObjects(); track obj.id) {
+        <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+          <!-- Object Header -->
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex-1">
+              <h3 class="text-lg font-bold text-[#121212]">{{ obj.name }}</h3>
+              <span 
+                [class.bg-[#e4f9d2]]="obj.type === 'Desk'"
+                [class.text-[#3f7c2e]]="obj.type === 'Desk'"
+                [class.border-[#7dd13d]]="obj.type === 'Desk'"
+                [class.bg-[#eaeaea]]="obj.type === 'ParkingSpace'"
+                [class.text-[#606a7a]]="obj.type === 'ParkingSpace'"
+                [class.border-[#d3d3d3]]="obj.type === 'ParkingSpace'"
+                class="inline-block px-2 py-1 text-xs font-semibold border rounded mt-1"
+              >
+                {{ obj.type === 'ParkingSpace' ? 'Parking' : obj.type }}
+              </span>
+            </div>
+            
+            <!-- Availability Badge -->
+            <div 
+              [class.bg-[#7dd13d]]="obj.isAvailable"
+              [class.bg-[#606a7a]]="!obj.isAvailable"
+              class="w-3 h-3 rounded-full mt-1"
+              [title]="obj.isAvailable ? 'Available' : 'Unavailable'"
+            ></div>
+          </div>
+          
+          <!-- Availability Status -->
+          <div class="flex items-center gap-2 text-sm mb-3">
+            <svg class="w-4 h-4" [class.text-[#7dd13d]]="obj.isAvailable" [class.text-[#606a7a]]="!obj.isAvailable" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span [class.text-[#3f7c2e]]="obj.isAvailable" [class.text-[#606a7a]]="!obj.isAvailable" class="font-semibold">
+              {{ obj.isAvailable ? 'Available' : 'Unavailable' }}
+            </span>
+          </div>
+          
+          <!-- Time Restrictions -->
+          @if (obj.hasTimeRestrictions) {
+            <div class="border-t border-[#eaeaea] pt-3 mt-3">
+              <div class="flex items-start gap-2 text-xs text-[#606a7a]">
+                <svg class="w-4 h-4 text-[#7dd13d] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                  <div class="font-semibold text-[#121212] mb-1">Time Restrictions</div>
+                  @if (obj.availableFrom && obj.availableUntil) {
+                    <div>{{ obj.availableFrom }} - {{ obj.availableUntil }}</div>
+                  }
+                  @if (obj.daysOfWeek) {
+                    <div class="mt-1">{{ obj.daysOfWeek }}</div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
