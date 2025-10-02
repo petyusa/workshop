@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { ReservableObject, ReservableObjectListResponse, ObjectType, ObjectTypes } from '../models/reservable-object';
 import { LocationService } from './location.service';
 
@@ -63,9 +64,9 @@ export class ReservableObjectService {
     this.error.set(null);
     
     try {
-      const response = await this.http
-        .get<ReservableObjectListResponse>(`${this.apiUrl}/api/locations/${locationId}/objects`)
-        .toPromise();
+      const response = await firstValueFrom(
+        this.http.get<ReservableObjectListResponse>(`${this.apiUrl}/api/locations/${locationId}/objects`)
+      );
       
       this.objects.set(response?.objects || []);
     } catch (err) {

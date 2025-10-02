@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { Location } from '../models/location';
 
 @Injectable({
@@ -25,7 +26,9 @@ export class LocationService {
 
   async loadLocations(): Promise<void> {
     try {
-      const locations = await this.http.get<Location[]>(`${this.apiUrl}/api/locations`).toPromise();
+      const locations = await firstValueFrom(
+        this.http.get<Location[]>(`${this.apiUrl}/api/locations`)
+      );
       this.locations.set(locations || []);
     } catch (error) {
       console.error('Failed to load locations:', error);
