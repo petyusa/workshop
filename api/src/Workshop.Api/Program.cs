@@ -1,3 +1,6 @@
+using Workshop.Api.Extensions;
+using Workshop.Api.Middleware;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
@@ -33,5 +36,28 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAngularClient");
 app.UseHttpsRedirection();
 
+// Add authentication middleware (after CORS, before endpoints)
+app.UseMiddleware<AuthenticationMiddleware>();
+
+// Health check endpoint (no auth required)
+app.MapGet("/api/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+   .WithName("HealthCheck")
+   .WithOpenApi();
+
+// Test endpoint to verify authentication
+app.MapGet("/api/auth/me", (HttpContext context) =>
+{
+    var user = context.GetCurrentUser();
+    return Results.Ok(new 
+    { 
+        username = user?.Username, 
+        role = user?.Role,
+        isAdmin = context.IsAdmin(),
+        isEmployee = context.IsEmployee()
+    });
+})
+.WithName("GetCurrentUser")
+.WithOpenApi()
+.WithDescription("Returns the current authenticated user information");
 
 app.Run();
