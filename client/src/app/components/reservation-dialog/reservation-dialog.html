@@ -1,0 +1,116 @@
+<div class="dialog-overlay" (click)="close()">
+  <div class="dialog-content" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h2 class="text-xl font-bold text-[#121212]">Reserve: {{ reservableObject().name }}</h2>
+      <button (click)="close()" class="close-btn">&times;</button>
+    </div>
+
+    <div class="dialog-body">
+      <div class="form-group">
+        <label class="label">Start Date & Time</label>
+        <input
+          type="datetime-local"
+          [value]="startTime()"
+          (input)="startTime.set($any($event.target).value); onStartTimeChange()"
+          class="input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="label">Duration</label>
+        <div class="duration-buttons">
+          <button
+            type="button"
+            [class.active]="selectedDuration() === 1"
+            (click)="selectedDuration.set(1); onDurationChange()"
+            class="duration-btn"
+          >
+            1 hour
+          </button>
+          <button
+            type="button"
+            [class.active]="selectedDuration() === 2"
+            (click)="selectedDuration.set(2); onDurationChange()"
+            class="duration-btn"
+          >
+            2 hours
+          </button>
+          <button
+            type="button"
+            [class.active]="selectedDuration() === 4"
+            (click)="selectedDuration.set(4); onDurationChange()"
+            class="duration-btn"
+          >
+            4 hours
+          </button>
+          <button
+            type="button"
+            [class.active]="selectedDuration() === 8"
+            (click)="selectedDuration.set(8); onDurationChange()"
+            class="duration-btn"
+          >
+            8 hours
+          </button>
+          <button
+            type="button"
+            [class.active]="selectedDuration() === 'custom'"
+            (click)="selectedDuration.set('custom')"
+            class="duration-btn"
+          >
+            Custom
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">End Date & Time</label>
+        <input
+          type="datetime-local"
+          [value]="endTime()"
+          (input)="endTime.set($any($event.target).value); validationError.set(null)"
+          [disabled]="selectedDuration() !== 'custom'"
+          class="input"
+          [class.disabled]="selectedDuration() !== 'custom'"
+        />
+      </div>
+
+      @if (reservableObject().hasTimeRestrictions) {
+        <div class="info-box">
+          <span class="info-icon">ℹ️</span>
+          <div>
+            <div class="font-semibold">Time Restrictions</div>
+            <div class="text-sm">
+              @if (reservableObject().availableFrom && reservableObject().availableUntil) {
+                Available: {{ reservableObject().availableFrom }} - {{ reservableObject().availableUntil }}
+              }
+              @if (reservableObject().daysOfWeek) {
+                <div>Days: {{ reservableObject().daysOfWeek }}</div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (validationError()) {
+        <div class="error-box">
+          <span class="error-icon">⚠️</span>
+          <span>{{ validationError() }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="dialog-footer">
+      <button (click)="close()" class="btn-cancel" [disabled]="submitting()">
+        Cancel
+      </button>
+      <button (click)="reserve()" class="btn-reserve" [disabled]="submitting()">
+        @if (submitting()) {
+          <span class="spinner"></span>
+          <span>Reserving...</span>
+        } @else {
+          <span>Reserve</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>

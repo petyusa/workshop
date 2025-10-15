@@ -36,7 +36,8 @@ public static class ReservableObjectEndpoints
                     o.HasTimeRestrictions,
                     o.AvailableFrom,
                     o.AvailableUntil,
-                    o.DaysOfWeek
+                    o.DaysOfWeek,
+                    o.OwnerUsername
                 ))
                 .ToListAsync();
 
@@ -59,7 +60,8 @@ public static class ReservableObjectEndpoints
                     o.HasTimeRestrictions,
                     o.AvailableFrom,
                     o.AvailableUntil,
-                    o.DaysOfWeek
+                    o.DaysOfWeek,
+                    o.OwnerUsername
                 ))
                 .FirstOrDefaultAsync();
 
@@ -94,7 +96,8 @@ public static class ReservableObjectEndpoints
                     o.HasTimeRestrictions,
                     o.AvailableFrom,
                     o.AvailableUntil,
-                    o.DaysOfWeek
+                    o.DaysOfWeek,
+                    o.OwnerUsername
                 ))
                 .ToListAsync();
 

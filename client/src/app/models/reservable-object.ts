@@ -7,6 +7,7 @@ export interface ReservableObject {
   availableFrom?: string;
   availableUntil?: string;
   daysOfWeek?: string;
+  ownerUsername?: string;
 }
 
 export interface ReservableObjectListResponse {
