@@ -1,0 +1,240 @@
+<div class="space-y-6">
+  <!-- Header with Tabs -->
+  <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-6 shadow-sm">
+    <h2 class="text-2xl font-bold text-[#121212] mb-4">My Reservations</h2>
+    
+    <!-- Tab Navigation -->
+    <div class="flex gap-2 border-b border-[#eaeaea]">
+      <button
+        (click)="activeTab.set('upcoming')"
+        [class.border-b-2]="activeTab() === 'upcoming'"
+        [class.border-[#7dd13d]]="activeTab() === 'upcoming'"
+        [class.text-[#121212]]="activeTab() === 'upcoming'"
+        [class.text-[#606a7a]]="activeTab() !== 'upcoming'"
+        class="px-4 py-2 font-semibold text-sm transition-colors -mb-px"
+      >
+        Upcoming ({{ service.upcomingReservations().length }})
+      </button>
+      <button
+        (click)="activeTab.set('active')"
+        [class.border-b-2]="activeTab() === 'active'"
+        [class.border-[#7dd13d]]="activeTab() === 'active'"
+        [class.text-[#121212]]="activeTab() === 'active'"
+        [class.text-[#606a7a]]="activeTab() !== 'active'"
+        class="px-4 py-2 font-semibold text-sm transition-colors -mb-px"
+      >
+        Active ({{ service.activeReservations().length }})
+      </button>
+      <button
+        (click)="activeTab.set('past')"
+        [class.border-b-2]="activeTab() === 'past'"
+        [class.border-[#7dd13d]]="activeTab() === 'past'"
+        [class.text-[#121212]]="activeTab() === 'past'"
+        [class.text-[#606a7a]]="activeTab() !== 'past'"
+        class="px-4 py-2 font-semibold text-sm transition-colors -mb-px"
+      >
+        Past ({{ service.pastReservations().length }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (service.loading()) {
+    <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-12 text-center">
+      <div class="animate-spin w-12 h-12 border-4 border-[#7dd13d] border-t-transparent rounded-full mx-auto mb-4"></div>
+      <p class="text-[#606a7a]">Loading reservations...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (service.error()) {
+    <div class="bg-[#ffffff] border border-red-300 rounded-lg p-6 text-center">
+      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <p class="text-red-600 font-semibold">{{ service.error() }}</p>
+    </div>
+  }
+
+  <!-- Upcoming Reservations -->
+  @else if (activeTab() === 'upcoming') {
+    @if (service.upcomingReservations().length === 0) {
+      <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-12 text-center">
+        <div class="w-16 h-16 bg-[#eaeaea] rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-[#606a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-[#121212] mb-2">No Upcoming Reservations</h3>
+        <p class="text-[#606a7a]">You don't have any upcoming reservations</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (reservation of service.upcomingReservations(); track reservation.id) {
+          <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <div class="text-sm text-[#606a7a] mb-1">📅 {{ formatDate(reservation.startTime) }}</div>
+                <h3 class="text-lg font-bold text-[#121212]">{{ reservation.objectName }}</h3>
+                <p class="text-sm text-[#606a7a]">@ {{ reservation.locationName }}</p>
+              </div>
+              <span 
+                [class.bg-[#e4f9d2]]="reservation.objectType === 'Desk'"
+                [class.text-[#3f7c2e]]="reservation.objectType === 'Desk'"
+                [class.bg-[#eaeaea]]="reservation.objectType === 'ParkingSpace'"
+                [class.text-[#606a7a]]="reservation.objectType === 'ParkingSpace'"
+                class="px-2 py-1 text-xs font-semibold rounded"
+              >
+                {{ reservation.objectType === 'ParkingSpace' ? 'Parking' : reservation.objectType }}
+              </span>
+            </div>
+            
+            <div class="border-t border-[#eaeaea] pt-3 mt-3 space-y-2">
+              <div class="text-sm">
+                <span class="text-[#606a7a]">Time:</span>
+                <span class="font-semibold text-[#121212] ml-2">
+                  {{ formatTime(reservation.startTime) }} - {{ formatTime(reservation.endTime) }}
+                </span>
+              </div>
+              <div class="text-sm">
+                <span class="text-[#606a7a]">Duration:</span>
+                <span class="font-semibold text-[#121212] ml-2">
+                  {{ calculateDuration(reservation.startTime, reservation.endTime) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="border-t border-[#eaeaea] pt-3 mt-3">
+              <button
+                (click)="openCancelDialog(reservation.id)"
+                class="w-full px-4 py-2 bg-[#eaeaea] text-[#606a7a] font-semibold rounded-lg hover:bg-red-100 hover:text-red-600 transition-colors"
+              >
+                Cancel Reservation
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Active Reservations -->
+  @else if (activeTab() === 'active') {
+    @if (service.activeReservations().length === 0) {
+      <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-12 text-center">
+        <div class="w-16 h-16 bg-[#eaeaea] rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-[#606a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-[#121212] mb-2">No Active Reservations</h3>
+        <p class="text-[#606a7a]">You don't have any active reservations right now</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (reservation of service.activeReservations(); track reservation.id) {
+          <div class="bg-[#e4f9d2] border-2 border-[#7dd13d] rounded-lg p-5 shadow-sm">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-3 h-3 bg-[#7dd13d] rounded-full animate-pulse"></div>
+              <span class="text-sm font-semibold text-[#3f7c2e]">Active Now</span>
+            </div>
+            
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <h3 class="text-lg font-bold text-[#121212]">{{ reservation.objectName }}</h3>
+                <p class="text-sm text-[#606a7a]">@ {{ reservation.locationName }}</p>
+              </div>
+              <span 
+                [class.bg-[#ffffff]]="reservation.objectType === 'Desk'"
+                [class.text-[#3f7c2e]]="reservation.objectType === 'Desk'"
+                [class.bg-[#eaeaea]]="reservation.objectType === 'ParkingSpace'"
+                [class.text-[#606a7a]]="reservation.objectType === 'ParkingSpace'"
+                class="px-2 py-1 text-xs font-semibold rounded"
+              >
+                {{ reservation.objectType === 'ParkingSpace' ? 'Parking' : reservation.objectType }}
+              </span>
+            </div>
+            
+            <div class="border-t border-[#7dd13d] pt-3 mt-3 space-y-2">
+              <div class="text-sm">
+                <span class="text-[#606a7a]">Until:</span>
+                <span class="font-semibold text-[#121212] ml-2">
+                  {{ formatTime(reservation.endTime) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Past Reservations -->
+  @else if (activeTab() === 'past') {
+    @if (service.pastReservations().length === 0) {
+      <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-12 text-center">
+        <div class="w-16 h-16 bg-[#eaeaea] rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-[#606a7a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-[#121212] mb-2">No Past Reservations</h3>
+        <p class="text-[#606a7a]">Your reservation history will appear here</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (reservation of service.pastReservations(); track reservation.id) {
+          <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-5 shadow-sm opacity-75">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <div class="text-sm text-[#606a7a] mb-1">📅 {{ formatDate(reservation.startTime) }}</div>
+                <h3 class="text-lg font-bold text-[#121212]">{{ reservation.objectName }}</h3>
+                <p class="text-sm text-[#606a7a]">@ {{ reservation.locationName }}</p>
+              </div>
+              <span 
+                class="px-2 py-1 text-xs font-semibold rounded bg-[#eaeaea] text-[#606a7a]"
+              >
+                {{ reservation.status }}
+              </span>
+            </div>
+            
+            <div class="border-t border-[#eaeaea] pt-3 mt-3 space-y-2">
+              <div class="text-sm">
+                <span class="text-[#606a7a]">Time:</span>
+                <span class="font-semibold text-[#121212] ml-2">
+                  {{ formatTime(reservation.startTime) }} - {{ formatTime(reservation.endTime) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+<!-- Cancel Confirmation Dialog -->
+@if (showCancelDialog()) {
+  <div class="dialog-overlay" (click)="closeCancelDialog()">
+    <div class="dialog-content" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h2 class="text-xl font-bold text-[#121212]">Cancel Reservation</h2>
+      </div>
+      
+      <div class="dialog-body">
+        <p class="text-[#606a7a]">Are you sure you want to cancel this reservation? This action cannot be undone.</p>
+      </div>
+      
+      <div class="dialog-footer">
+        <button (click)="closeCancelDialog()" class="btn-secondary">
+          Keep Reservation
+        </button>
+        <button (click)="confirmCancel()" class="btn-danger">
+          Yes, Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+}

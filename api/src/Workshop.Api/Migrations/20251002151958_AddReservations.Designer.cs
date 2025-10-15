@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Workshop.Api.Data;
 
@@ -10,62 +11,14 @@ using Workshop.Api.Data;
 namespace Workshop.Api.Migrations
 {
     [DbContext(typeof(WorkshopDbContext))]
-    partial class WorkshopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251002151958_AddReservations")]
+    partial class AddReservations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
-
-            modelBuilder.Entity("Workshop.Api.Data.Entities.AccessRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Message")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("RequestedEndTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("RequestedStartTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("RequesterUsername")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ReservableObjectId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("RespondedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ResponseMessage")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RequesterUsername");
-
-                    b.HasIndex("ReservableObjectId");
-
-                    b.HasIndex("Status");
-
-                    b.ToTable("AccessRequests");
-                });
 
             modelBuilder.Entity("Workshop.Api.Data.Entities.Location", b =>
                 {
@@ -143,10 +96,6 @@ namespace Workshop.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("OwnerUsername")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -166,7 +115,6 @@ namespace Workshop.Api.Migrations
                             IsAvailable = true,
                             LocationId = 1,
                             Name = "Desk-A1",
-                            OwnerUsername = "john.doe",
                             Type = "Desk"
                         },
                         new
@@ -176,7 +124,6 @@ namespace Workshop.Api.Migrations
                             IsAvailable = true,
                             LocationId = 1,
                             Name = "Desk-A2",
-                            OwnerUsername = "jane.smith",
                             Type = "Desk"
                         },
                         new
@@ -237,7 +184,6 @@ namespace Workshop.Api.Migrations
                             IsAvailable = true,
                             LocationId = 1,
                             Name = "Parking-P1",
-                            OwnerUsername = "bob.wilson",
                             Type = "ParkingSpace"
                         },
                         new
@@ -573,17 +519,6 @@ namespace Workshop.Api.Migrations
                             Status = "Active",
                             Username = "alice.brown"
                         });
-                });
-
-            modelBuilder.Entity("Workshop.Api.Data.Entities.AccessRequest", b =>
-                {
-                    b.HasOne("Workshop.Api.Data.Entities.ReservableObject", "ReservableObject")
-                        .WithMany()
-                        .HasForeignKey("ReservableObjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ReservableObject");
                 });
 
             modelBuilder.Entity("Workshop.Api.Data.Entities.ReservableObject", b =>

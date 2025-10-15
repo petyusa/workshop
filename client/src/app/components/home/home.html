@@ -18,7 +18,55 @@
 
     <!-- Dashboard Content -->
     @if (locationService.hasSelectedLocation()) {
-      <app-reservable-objects></app-reservable-objects>
+      <!-- Tab Navigation -->
+      <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-4 shadow-sm mb-6">
+        <div class="flex gap-2">
+          <button
+            (click)="activeTab.set('objects')"
+            [class.bg-[#7dd13d]]="activeTab() === 'objects'"
+            [class.text-[#ffffff]]="activeTab() === 'objects'"
+            [class.bg-[#eaeaea]]="activeTab() !== 'objects'"
+            [class.text-[#606a7a]]="activeTab() !== 'objects'"
+            class="px-6 py-3 rounded-lg font-semibold text-sm transition-colors hover:opacity-80"
+          >
+            Available Objects
+          </button>
+          <button
+            (click)="activeTab.set('reservations')"
+            [class.bg-[#7dd13d]]="activeTab() === 'reservations'"
+            [class.text-[#ffffff]]="activeTab() === 'reservations'"
+            [class.bg-[#eaeaea]]="activeTab() !== 'reservations'"
+            [class.text-[#606a7a]]="activeTab() !== 'reservations'"
+            class="px-6 py-3 rounded-lg font-semibold text-sm transition-colors hover:opacity-80"
+          >
+            My Reservations
+          </button>
+          <button
+            (click)="activeTab.set('access-requests')"
+            [class.bg-[#7dd13d]]="activeTab() === 'access-requests'"
+            [class.text-[#ffffff]]="activeTab() === 'access-requests'"
+            [class.bg-[#eaeaea]]="activeTab() !== 'access-requests'"
+            [class.text-[#606a7a]]="activeTab() !== 'access-requests'"
+            class="relative px-6 py-3 rounded-lg font-semibold text-sm transition-colors hover:opacity-80"
+          >
+            Access Requests
+            @if (accessRequestService.pendingRequestsCount() > 0) {
+              <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {{ accessRequestService.pendingRequestsCount() }}
+              </span>
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content -->
+      @if (activeTab() === 'objects') {
+        <app-reservable-objects></app-reservable-objects>
+      } @else if (activeTab() === 'reservations') {
+        <app-my-reservations></app-my-reservations>
+      } @else {
+        <app-access-requests></app-access-requests>
+      }
     } @else {
       <div class="bg-[#ffffff] border border-[#d3d3d3] rounded-lg p-8 text-center">
         <div class="w-16 h-16 bg-[#eaeaea] rounded-full flex items-center justify-center mx-auto mb-4">

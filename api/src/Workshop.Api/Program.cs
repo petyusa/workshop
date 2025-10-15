@@ -42,7 +42,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAngularClient");
 app.UseHttpsRedirection();
 
-// Add authentication middleware (after CORS, before endpoints)
+// Add custom authentication middleware
 app.UseMiddleware<AuthenticationMiddleware>();
 
 // Health check endpoint (no auth required)
@@ -71,5 +71,11 @@ app.MapLocationEndpoints();
 
 // Map reservable object endpoints
 app.MapReservableObjectEndpoints();
+
+// Map reservation endpoints
+app.MapReservationEndpoints();
+
+// Map access request endpoints
+app.MapAccessRequestEndpoints();
 
 app.Run();
